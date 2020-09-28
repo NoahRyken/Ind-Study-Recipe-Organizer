@@ -5,9 +5,9 @@ app = Flask(__name__)
 def index():
   return render_template('index.html')
 
-@app.route('/my-link/')
-def my_link():
-  print ('I got clicked!')
+@app.route('/')
+def move_forward():
+  print ('moving forward')
 
   return 'Click.'
 
