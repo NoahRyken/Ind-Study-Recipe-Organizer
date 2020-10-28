@@ -6,6 +6,8 @@ server.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///recipes.db'
 db = SQLAlchemy(server)
 #Creating server
 
+ingredient_num = 1
+
 filters = [
     {
         'filter': 'dairy',
@@ -64,6 +66,41 @@ def index():
     return render_template('index.html')
 #Routing to Home Page
 
+@server.route('/add', methods=['GET', 'POST'])
+def add():
+
+    if request.method == 'POST':
+        #if new recipe input
+
+        ingredient_num = 1
+        recipe_name = request.form['name']
+        recipe_chef = request.form['chef']
+        recipe_ingredients = request.form['ingredients']
+        recipe_steps = request.form['steps']
+        recipe_extra_notes = request.form['notes']
+        recipe_tags = ""
+        #assigning new recipe ject to form inputs
+
+        for my_filter in filters:
+            try:
+                if request.form[my_filter['filter']] == "":
+                    recipe_tags += my_filter['id']
+            except:
+                continue
+        #assigning tags to recipe
+        
+        new_recipes = Recipes(name=recipe_name, chef=recipe_chef, ingredients=recipe_ingredients, steps=recipe_steps, extra_notes=recipe_extra_notes, tags=recipe_tags)
+        db.session.add(new_recipes)
+        db.session.commit()
+        return redirect('/add')
+        #adding recipe to database
+        
+    else:
+        ingredient_num = 0
+        return render_template("add.html", used_filters=filters, ing_num=ingredient_num)
+        #displaying website
+
+
 @server.route('/search', methods=['GET', 'POST'])
 def search():
 
@@ -76,14 +113,10 @@ def search():
         tag_check = []
 
         for my_filter in filters:
-            print("Testa")
             try:
-                print("Testb")
                 if request.form[my_filter['filter']] == "":
-                    print("Testc")
-                    tag_check.append("Y" + my_filter['id'])
+                    tag_check.append(my_filter['id'])
             except:
-                print("Testd")
                 continue
         #Identifying tags to exclude
 
@@ -99,16 +132,13 @@ def search():
                 print("Test1")
                 for tag in tag_check:
                     i = 0
-                    print("Test2")
                     try:
                         temp = recipe.tags.index(tag)
-                        print("Test3")
                     except:
                         i = i**2
-                        print("Test4")
                     else:
                         i = i + 1
-                        print("Test5")
+                        break
                 #checking if excluded tags are included
                 if i == 0:
                     correct_recipes.append(recipe)
@@ -147,9 +177,9 @@ def recipe():
         for my_filter in filters:
             try:
                 if request.form[my_filter['filter']] == "":
-                    recipe_tags += 'Y' + my_filter['id']
+                    recipe_tags += my_filter['id']
             except:
-                recipe_tags += 'N' + my_filter['id']
+                continue
         #assigning tags to recipe
         
         new_recipes = Recipes(name=recipe_name, chef=recipe_chef, ingredients=recipe_ingredients, steps=recipe_steps, extra_notes=recipe_extra_notes, tags=recipe_tags)

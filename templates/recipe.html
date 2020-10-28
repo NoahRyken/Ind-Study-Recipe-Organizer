@@ -49,14 +49,13 @@
     
     <p>
         {% for filter in used_filters %}
+            {% for l in range(0, (((recipe.tags|length))/2)|int) %}
+                {% if recipe.tags[l*2:(l*2)+2] == filter['id'] %}
+                    {{ filter['filter'] }}
+                    <br>
             
-            {% if recipe.tags[recipe.tags.index(filter['id'])-1:recipe.tags.index(filter['id'])] == "Y" %}
-            
-                {{ filter['filter'] }}
-                <br>
-            
-            {% endif %}
-            
+                {% endif %}
+            {% endfor %}
         {% endfor %}
         {# formting filters #}
 

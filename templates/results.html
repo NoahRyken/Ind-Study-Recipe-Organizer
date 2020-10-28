@@ -12,7 +12,16 @@
 <form action='/search' method='POST'>
     Search: <input type='text' name='search' id='search'>
             <input type='submit' vale='Submit'>
-            {# search bar to search database #}
+{# creating search bar #}
+
+    <br>
+    Mark to exclude results:
+    {% for filter in used_filters %}
+        <br>&nbsp;
+        <input type='checkbox' name='{{ filter["filter"] }}' id='{{ filter["filter"] }}' value='{{ filter[filter] }}'>
+        <label for='{{ filter["filter"] }}'>Exclude {{ filter["filter"] }}</label>
+    {% endfor %}
+        {# form to get excluded tags #}
 <br>
 <a href='/'>Back To Home</a>
 {% for recipe in recipes %}
@@ -35,16 +44,15 @@
     
     <p>
         {% for filter in used_filters %}
+            {% for l in range(0, (((recipe.tags|length))/2)|int) %}
+                {% if recipe.tags[l*2:(l*2)+2] == filter['id'] %}
+                    {{ filter['filter'] }}
+                    <br>
             
-            {% if recipe.tags[recipe.tags.index(filter['id'])-1:recipe.tags.index(filter['id'])] == "Y" %}
-            
-                {{ filter['filter'] }}
-                <br>
-            
-            {% endif %}
-            
+                {% endif %}
+            {% endfor %}
         {% endfor %}
-        {# formating filters #}
+        {# formting filters #}
 
         {% if recipe.extra_notes != "" %}
         <h4>Extra Notes:</h4>
