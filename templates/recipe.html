@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Recipes</title>
+{% endblock %}
+
+{% block body %}
+<h1>Add Recipes:</h1>
+<form action='/recipe' method='POST'>
+    Name: <input type='text' name='name' id='name'>
+    <br>
+    Chef: <input type='text' name='chef' id='chef'>
+    <br>
+    Ingredients: <input type='text' name='ingredients' id='ingredients'>
+    <br>
+    Steps: <input type='text' name='steps' id='steps'>
+    <br>
+    Extra Notes: <input type='text' name='notes' id='notes'>
+    <br>
+    {# form to get names #}
+    Tags:
+    {% for filter in used_filters %}
+    <br>&nbsp;
+    <input type='checkbox' name='{{ filter["filter"] }}' id='{{ filter["filter"] }}' value='{{ filter[filter] }}'>
+    <label for='{{ filter["filter"] }}'>Contains {{ filter["filter"] }}</label>
+    {% endfor %}
+    {# form to get tags #}
+    <br>
+    <input type="submit" value="Submit">
+    <br>
+<a href='/'>Back To Home</a>
+<h1>Recipes:</h1>
+{% for recipe in recipes %}
+
+    <h2>{{ recipe.name }}</h2>
+    <h3>Chef: {{ recipe.chef }}</h3>
+
+    <h4>Ingredients:</h4>
+    <p>
+        {% autoescape false %}
+            {{ recipe.ingredients | replace('| ','|') | replace(' |','|') | replace(' :',':') | replace(': ',':') | replace(':',': ') | replace('|', '<br>') }}
+            <h4>Steps:</h4>
+            {{ recipe.steps | replace('| ','|') | replace(' |','|') | replace('|', '<br>') }}
+        {% endautoescape %}
+        {# formating ingredients and steps #}
+    </p>
+
+    <h4>Contains:</h4>
+    
+    <p>
+        {% for filter in used_filters %}
+            
+            {% if recipe.tags[recipe.tags.index(filter['id'])-1:recipe.tags.index(filter['id'])] == "Y" %}
+            
+                {{ filter['filter'] }}
+                <br>
+            
+            {% endif %}
+            
+        {% endfor %}
+        {# formting filters #}
+
+        {% if recipe.extra_notes != "" %}
+        <h4>Extra Notes:</h4>
+        {{ recipe.extra_notes }}
+        {% endif %}
+        <br>
+        <br>
+        <a href='/recipe/delete/{{recipe.id}}'>Delete Recipe</a>
+        <br>
+        {{ recipe.tags }}
+        {# displaying recipe #}
+    </p>
+{% endfor %}
+{% endblock %}
