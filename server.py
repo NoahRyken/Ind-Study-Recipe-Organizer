@@ -48,6 +48,8 @@ filters = [
 ]
 #Establishing dictionary of Tags/Filters
 
+week_organizer = []
+
 class Recipes(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text, nullable=False, default="None Listed")
@@ -65,6 +67,15 @@ class Recipes(db.Model):
 def index():
     return render_template('index.html')
 #Routing to Home Page
+
+@server.route('/organizer')
+def organizer():
+    week_organizer.clear()
+    all_recipes = Recipes.query.all()
+    for i in range(0, len(all_recipes)):
+        if i == 1 or i == 3:
+            week_organizer.append(all_recipes[i])
+    return render_template('organizer.html', recipes=week_organizer, used_filters=filters)
 
 @server.route('/add', methods=['GET', 'POST'])
 def add():

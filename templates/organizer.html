@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Recipes In Organizer</title>
+{% endblock %}
+
+{% block body %}
+<a href='/'>Back To Home</a>
+<h1>Recipes:</h1>
+{% for recipe in recipes %}
+
+    <h2>{{ recipe.name }}</h2>
+    <h3>Chef: {{ recipe.chef }}</h3>
+
+    <h4>Ingredients:</h4>
+    <p>
+        {% autoescape false %}
+            {{ recipe.ingredients | replace('| ','|') | replace(' |','|') | replace(' :',':') | replace(': ',':') | replace(':',': ') | replace('|', '<br>') }}
+            <h4>Steps:</h4>
+            {{ recipe.steps | replace('| ','|') | replace(' |','|') | replace('|', '<br>') }}
+        {% endautoescape %}
+        {# formating ingredients and steps #}
+    </p>
+
+    <h4>Contains:</h4>
+    
+    <p>
+        {% for filter in used_filters %}
+            {% for l in range(0, (((recipe.tags|length))/2)|int) %}
+                {% if recipe.tags[l*2:(l*2)+2] == filter['id'] %}
+                    {{ filter['filter'] }}
+                    <br>
+            
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+        {# formting filters #}
+
+        {% if recipe.extra_notes != "" %}
+        <h4>Extra Notes:</h4>
+        {{ recipe.extra_notes }}
+        {% endif %}
+        <br>
+        <br>
+        <a href='/recipe/delete/{{recipe.id}}'>Delete Recipe</a>
+        <br>
+        {{ recipe.tags }}
+        {# displaying recipe #}
+    </p>
+{% endfor %}
+{% endblock %}
