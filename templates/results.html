@@ -8,64 +8,11 @@
 
 
 <h1>Results</h1>
-<h2>Search Again: </h2>
-<form action='/search' method='POST'>
-    Search: <input type='text' name='search' id='search'>
-            <input type='submit' vale='Submit'>
-{# creating search bar #}
 
-    <br>
-    Mark to exclude results:
-    {% for filter in used_filters %}
-        <br>&nbsp;
-        <input type='checkbox' name='{{ filter["filter"] }}' id='{{ filter["filter"] }}' value='{{ filter[filter] }}'>
-        <label for='{{ filter["filter"] }}'>Exclude {{ filter["filter"] }}</label>
-    {% endfor %}
-        {# form to get excluded tags #}
-<br>
+{% include 'part_search.html' %}
+
 <a href='/'>Back To Home</a>
-{% for recipe in recipes %}
 
-    <h2>{{ recipe.name }}</h2>
-    <h3>Chef: {{ recipe.chef }}</h3>
-
-    <h4>Ingredients:</h4>
-    <p>
-        {% autoescape false %}
-            {{ recipe.ingredients | replace('| ','|') | replace(' |','|') | replace(' :',':') | replace(': ',':') | replace(':',': ') | replace('|', '<br>') }}
-            <h4>Steps:</h4>
-            {{ recipe.steps | replace('| ','|') | replace(' |','|') | replace('|', '<br>') }}
-        {% endautoescape %}
-        {# formating ingredients and steps #}
-
-    </p>
-
-    <h4>Contains:</h4>
-    
-    <p>
-        {% for filter in used_filters %}
-            {% for l in range(0, (((recipe.tags|length))/2)|int) %}
-                {% if recipe.tags[l*2:(l*2)+2] == filter['id'] %}
-                    {{ filter['filter'] }}
-                    <br>
-            
-                {% endif %}
-            {% endfor %}
-        {% endfor %}
-        {# formting filters #}
-
-        {% if recipe.extra_notes != "" %}
-        <h4>Extra Notes:</h4>
-        {{ recipe.extra_notes }}
-        {% endif %}
-        <br>
-        <br>
-        <a href='/recipe/delete/{{recipe.id}}'>Delete Recipe</a>
-        <br>
-        {{ recipe.tags }}
-
-        {# printing recipes that were found #}
-    </p>
-{% endfor %}
+{% include 'part_display.html' %}
 
 {% endblock %}

@@ -1,11 +1,3 @@
-{% extends 'base.html' %}
-
-{% block head %}
-<title>Recipes In Organizer</title>
-{% endblock %}
-
-{% block body %}
-<a href='/'>Back To Home</a>
 <h1>Recipes:</h1>
 {% for recipe in recipes %}
 
@@ -43,9 +35,9 @@
         <br>
         <br>
         <a href='/recipe/delete/{{recipe.id}}'>Delete Recipe</a>
+        <a href='/results/add_deck/{{recipe.id}}'>Add Recipe To Deck</a>
         <br>
         {{ recipe.tags }}
         {# displaying recipe #}
     </p>
 {% endfor %}
-{% endblock %}

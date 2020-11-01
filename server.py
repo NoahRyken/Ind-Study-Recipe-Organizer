@@ -48,7 +48,9 @@ filters = [
 ]
 #Establishing dictionary of Tags/Filters
 
-week_organizer = []
+deck = []
+hands = []
+hand_names = ['bill', 'phill', 'dill']
 
 class Recipes(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -68,14 +70,15 @@ def index():
     return render_template('index.html')
 #Routing to Home Page
 
-@server.route('/organizer')
-def organizer():
-    week_organizer.clear()
-    all_recipes = Recipes.query.all()
-    for i in range(0, len(all_recipes)):
-        if i == 1 or i == 3:
-            week_organizer.append(all_recipes[i])
-    return render_template('organizer.html', recipes=week_organizer, used_filters=filters)
+@server.route('/my_deck')
+def my_deck():
+    return render_template('deck.html', used_filters=filters, recipes=deck)
+
+@server.route('/results/add_deck/<int:id>', methods=['GET', 'POST'])
+def add_deck(id):
+    newDeckRecipe = Recipes.query.get_or_404(id)
+    deck.append(newDeckRecipe)
+    return redirect('/recipe')
 
 @server.route('/add', methods=['GET', 'POST'])
 def add():
@@ -117,55 +120,52 @@ def search():
 
     if request.method == 'POST':
         #if search is input
+        try:
+            temp = request.form['add' + str()]
 
-        search = request.form['search']
-        all_recipes = Recipes.query.all()
-        correct_recipes = []
-        tag_check = []
+        except:
+            search = request.form['search']
+            all_recipes = Recipes.query.all()
+            correct_recipes = []
+            tag_check = []
 
-        for my_filter in filters:
-            try:
-                if request.form[my_filter['filter']] == "":
-                    tag_check.append(my_filter['id'])
-            except:
-                continue
-        #Identifying tags to exclude
+            for my_filter in filters:
+                try:
+                    if request.form[my_filter['filter']] == "":
+                        tag_check.append(my_filter['id'])
+                except:
+                    continue
+            #Identifying tags to exclude
 
-        for recipe in all_recipes:   
-            name = str(recipe.name)
-            try:
-                temp = name.index(search)
-                #test if search exist
-            except:
-                continue
-            else:
-                i = 0
-                print("Test1")
-                for tag in tag_check:
+            for recipe in all_recipes:   
+                name = str(recipe.name)
+                try:
+                    temp = name.index(search)
+                    #test if search exist
+                except:
+                    continue
+                else:
                     i = 0
-                    try:
-                        temp = recipe.tags.index(tag)
-                    except:
-                        i = i**2
-                    else:
-                        i = i + 1
-                        break
-                #checking if excluded tags are included
-                if i == 0:
-                    correct_recipes.append(recipe)
-                #adds to results
+                    for tag in tag_check:
+                        i = 0
+                        try:
+                            temp = recipe.tags.index(tag)
+                        except:
+                            i = i**2
+                        else:
+                            i = i + 1
+                            break
+                    #checking if excluded tags are included
+                    if i == 0:
+                        correct_recipes.append(recipe)
+                    #adds to results
 
-
-
-
-
-                    
-        if correct_recipes != []:
-            #if recipes then show results
-            return render_template("results.html", recipes=correct_recipes, used_filters=filters)
-        else:
-            #if none say failed
-            return render_template("search.html", search=0, failure=1, used_filters=filters)
+            if correct_recipes != []:
+                #if recipes then show results
+                return render_template("results.html", recipes=correct_recipes, used_filters=filters)
+            else:
+                #if none say failed
+                return render_template("search.html", search=0, failure=1, used_filters=filters)
 
     else:
         #if search is input
