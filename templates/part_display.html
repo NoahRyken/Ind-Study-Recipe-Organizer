@@ -27,7 +27,7 @@
             {% endfor %}
         {% endfor %}
         {# formting filters #}
-
+    
         {% if recipe.extra_notes != "" %}
         <h4>Extra Notes:</h4>
         {{ recipe.extra_notes }}
@@ -35,7 +35,11 @@
         <br>
         <br>
         <a href='/recipe/delete/{{recipe.id}}'>Delete Recipe</a>
-        <a href='/results/add_deck/{{recipe.id}}'>Add Recipe To Deck</a>
+        <a href='/results/add_favorite/{{recipe.id}}'>Add Recipe To Favorites</a>
+            {% for group in the_groups %}
+                <br>
+                <a href="/manager/addToGroup/{{group['name']}}/{{recipe.id}}">Add Recipe To {{ group['name'] }} Manager</a>
+            {% endfor %}
         <br>
         {{ recipe.tags }}
         {# displaying recipe #}

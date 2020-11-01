@@ -1,18 +1,18 @@
 <h1>Search Tab</h1>
-<form action='/search' method='POST'>
-    Search: <input type='text' name='search' id='search'>
-            <input type='submit' vale='Submit'>
-{# creating search bar #}
+    <form action='/search' method='POST' id='select_search'>
+        Search: <input type='text' name='search' id='search' form_id='search_select'>
+                <input type='submit' value='Submit' form_id='search_select'>
+    {# creating search bar #}
 
-    <br>
-    Mark to exclude results:
-    {% for filter in used_filters %}
-        <br>&nbsp;
-        <input type='checkbox' name='{{ filter["filter"] }}' id='{{ filter["filter"] }}' value='{{ filter[filter] }}'>
-        <label for='{{ filter["filter"] }}'>Exclude {{ filter["filter"] }}</label>
-    {% endfor %}
+        <br>
+        Mark to exclude results:
+        {% for filter in used_filters %}
+            <br>&nbsp;
+            <input type='checkbox' name='{{ filter["filter"] }}' id='{{ filter["filter"] }}' value='{{ filter[filter] }}' form_id='search_select'>
+            <label for='{{ filter["filter"] }}'>Exclude {{ filter["filter"] }}</label>
+        {% endfor %}
+    </form>
         {# form to get excluded tags #}
-
 {% if failure == 1 %}
 <h5>No Recipes Found Matching Criteria</h5>
 {# saying if search not found #}

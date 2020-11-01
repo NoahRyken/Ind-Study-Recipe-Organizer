@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Manager</title>
+{% endblock %}
+
+{% block body %}
+<h1>Manager:</h1>
+<a href='/'>To Home</a>
+<form action='/manager' method='POST'>
+    Add Group: <input type='text' name='manager' id='manager'>
+            <input type='submit' vale='Submit'>
+{# links to other locations #}
+
+{% for group in the_groups %}
+
+    <h1>{{ group['name'] }}</h1>
+    {% for part in group['parts'] %}
+
+        <h2>Name: {{ part.name }}</h2>
+        <h3>Chef: {{ part.chef }}</h3>
+
+        <h4>Ingredients:</h4>
+        <p>
+            {% autoescape false %}
+            {{ part.ingredients | replace('| ','|') | replace(' |','|') | replace(' :',':') | replace(': ',':') | replace(':',': ') | replace('|', '<br>') }}
+                <h4>Steps:</h4>
+                {{ part.steps | replace('| ','|') | replace(' |','|') | replace('|', '<br>') }}
+            {% endautoescape %}
+            {# formating ingredients and steps #}
+        </p>
+
+        <h4>Contains:</h4>
+
+        <p>
+            {% for filter in used_filters %}
+                {% for l in range(0, (((part.tags|length))/2)|int) %}
+                    {% if part.tags[l*2:(l*2)+2] == filter['id'] %}
+                        {{ filter['filter'] }}
+                        <br>
+                
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+            {# formting filters #}
+        
+            {% if part.extra_notes != "" %}
+            <h4>Extra Notes:</h4>
+            {{ part.extra_notes }}
+            {% endif %}
+            <br>
+            {{ part.tags }}
+            {# displaying recipe #}
+        </p>
+
+    {% endfor %}
+{% endfor %}
+{% endblock %}

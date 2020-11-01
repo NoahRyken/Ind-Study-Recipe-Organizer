@@ -48,9 +48,8 @@ filters = [
 ]
 #Establishing dictionary of Tags/Filters
 
-deck = []
-hands = []
-hand_names = ['bill', 'phill', 'dill']
+favorite = []
+groups = []
 
 class Recipes(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -70,14 +69,14 @@ def index():
     return render_template('index.html')
 #Routing to Home Page
 
-@server.route('/my_deck')
-def my_deck():
-    return render_template('deck.html', used_filters=filters, recipes=deck)
+@server.route('/my_favorite')
+def my_favorite():
+    return render_template('favorite.html', used_filters=filters, recipes=favorite, the_groups = groups)
 
-@server.route('/results/add_deck/<int:id>', methods=['GET', 'POST'])
-def add_deck(id):
-    newDeckRecipe = Recipes.query.get_or_404(id)
-    deck.append(newDeckRecipe)
+@server.route('/results/add_favorite/<int:id>', methods=['GET', 'POST'])
+def add_favorite(id):
+    newFavoriteRecipe = Recipes.query.get_or_404(id)
+    favorite.append(newFavoriteRecipe)
     return redirect('/recipe')
 
 @server.route('/add', methods=['GET', 'POST'])
@@ -111,61 +110,77 @@ def add():
         
     else:
         ingredient_num = 0
-        return render_template("add.html", used_filters=filters, ing_num=ingredient_num)
+        return render_template("add.html", the_groups = groups, used_filters=filters, ing_num=ingredient_num)
         #displaying website
 
+@server.route('/manager', methods=['GET', 'POST'])
+def manager():
+
+    if request.method == 'POST':
+
+        new_group = {
+            'name':request.form['manager'],
+            'parts':[]
+        }
+        groups.append(new_group)
+        return render_template('manager.html', the_groups = groups, used_filters=filters, mygroups=groups)
+
+    else:
+        return render_template('manager.html', the_groups = groups, used_filters=filters, mygroups=groups)
+
+@server.route('/manager/addToGroup/<string:groupname>/<int:id>', methods=['GET', 'POST'])
+def addToGroup(groupname, id):
+    recipe = Recipes.query.get_or_404(id)
+    for group in groups:
+        if group['name'] == groupname:
+            group['parts'].append(recipe)
+    return redirect('/recipe')
 
 @server.route('/search', methods=['GET', 'POST'])
 def search():
 
     if request.method == 'POST':
         #if search is input
-        try:
-            temp = request.form['add' + str()]
 
-        except:
-            search = request.form['search']
-            all_recipes = Recipes.query.all()
-            correct_recipes = []
-            tag_check = []
-
-            for my_filter in filters:
-                try:
-                    if request.form[my_filter['filter']] == "":
-                        tag_check.append(my_filter['id'])
-                except:
-                    continue
-            #Identifying tags to exclude
-
-            for recipe in all_recipes:   
-                name = str(recipe.name)
-                try:
-                    temp = name.index(search)
-                    #test if search exist
-                except:
-                    continue
-                else:
-                    i = 0
-                    for tag in tag_check:
-                        i = 0
-                        try:
-                            temp = recipe.tags.index(tag)
-                        except:
-                            i = i**2
-                        else:
-                            i = i + 1
-                            break
-                    #checking if excluded tags are included
-                    if i == 0:
-                        correct_recipes.append(recipe)
-                    #adds to results
-
-            if correct_recipes != []:
-                #if recipes then show results
-                return render_template("results.html", recipes=correct_recipes, used_filters=filters)
+        search = request.form['search']
+        all_recipes = Recipes.query.all()
+        correct_recipes = []
+        tag_check = []
+        for my_filter in filters:
+            try:
+                if request.form[my_filter['filter']] == "":
+                    tag_check.append(my_filter['id'])
+            except:
+                continue
+        #Identifying tags to exclude
+        for recipe in all_recipes:   
+            name = str(recipe.name)
+            try:
+                temp = name.index(search)
+                #test if search exist
+            except:
+                continue
             else:
-                #if none say failed
-                return render_template("search.html", search=0, failure=1, used_filters=filters)
+                i = 0
+                for tag in tag_check:
+                    i = 0
+                    try:
+                        temp = recipe.tags.index(tag)
+                    except:
+                        i = i**2
+                    else:
+                        i = i + 1
+                        break
+                #checking if excluded tags are included
+                if i == 0:
+                    correct_recipes.append(recipe)
+                #adds to results
+        if correct_recipes != []:
+            #if recipes then show results
+            return render_template("results.html", the_groups = groups, recipes=correct_recipes, used_filters=filters)
+        else:
+            #if none say failed
+            return render_template("search.html", search=0, failure=1, used_filters=filters)
 
     else:
         #if search is input
@@ -201,7 +216,7 @@ def recipe():
         
     else:
         all_recipes = Recipes.query.order_by(Recipes.name).all()
-        return render_template("recipe.html", recipes=all_recipes, used_filters=filters)
+        return render_template("recipe.html", the_groups = groups, recipes=all_recipes, used_filters=filters)
         #displaying website
 
 @server.route('/recipe/delete/<int:id>', methods=['GET', 'POST'])
