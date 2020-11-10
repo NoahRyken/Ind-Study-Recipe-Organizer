@@ -35,10 +35,9 @@
         <br>
         <br>
         <a href='/recipe/delete/{{recipe.id}}'>Delete Recipe</a>
-        <a href='/results/add_favorite/{{recipe.id}}'>Add Recipe To Favorites</a>
             {% for group in the_groups %}
                 <br>
-                <a href="/manager/addToGroup/{{group['name']}}/{{recipe.id}}">Add Recipe To {{ group['name'] }} Manager</a>
+                <a href="/manager/addToGroup/{{group.id}}/{{recipe.id}}">Add Recipe To {{ group.group_name }} Manager</a>
             {% endfor %}
         <br>
         {{ recipe.tags }}

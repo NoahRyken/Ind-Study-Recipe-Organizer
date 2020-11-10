@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Create New User</title>
+{% endblock %}
+
+{% block body %}
+<form action='/newuser' method='POST' id='login'>
+    Create Username: <input type='text' name='username' id='username' form_id='login'>
+    <br>
+    Create Password: <input type='text' name='password' id='password' form_id='login'>
+            <input type='submit' value='Create Account' form_id='login'>
+
+<a href='/'>To Home</a>
+
+{# links to other locations #}
+{% endblock %}

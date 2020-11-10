@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Login Page</title>
+{% endblock %}
+
+{% block body %}
+<h1>Welcome</h1>
+
+<a href='/'>To Home</a>
+
+<form action='/login' method='POST' id='login'>
+    Username: <input type='text' name='username' id='username' form_id='login'>
+    <br>
+    Password: <input type='text' name='password' id='password' form_id='login'>
+            <input type='submit' value='Login' form_id='login'>
+<br>
+{% if failure == 1 %}
+    <p>Failed to login, please try again</p>
+{% endif %}
+<a href='/newuser'>Create New User</a>
+{# links to other locations #}
+{% endblock %}

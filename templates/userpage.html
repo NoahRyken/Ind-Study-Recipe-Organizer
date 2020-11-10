@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Userpage</title>
+{% endblock %}
+
+{% block body %}
+<h1>Hello {{theUser.username}}</h1>
+{% if weirdness == 1 %}
+    <p>Your credentials are already in use so we logged you in</p>
+{% endif %}
+{% if new == 1 %}
+    <p>Your credentials have been input and we have logged you in</p>
+{% endif %}
+<a href='/'>To Home</a>
+
+{# links to other locations #}
+{% endblock %}

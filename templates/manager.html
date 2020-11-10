@@ -13,46 +13,54 @@
 {# links to other locations #}
 
 {% for group in the_groups %}
+    <h2>{{ group[0].group_name }}</h2>
+    <p>{{ group[0].recipe_ids }}</p>
+    <a href='/manager/deleteGroup/{{ group[0].id }}'>Delete {{group[0].group_name}}</a>
+    {% for recipe in group %}
+        {% if recipe.name|length != 0 %}
 
-    <h1>{{ group['name'] }}</h1>
-    {% for part in group['parts'] %}
+            <h3>{{ recipe.name }}</h3>
+            <h4>Chef: {{ recipe.chef }}</h4>
 
-        <h2>Name: {{ part.name }}</h2>
-        <h3>Chef: {{ part.chef }}</h3>
+            <h5>Ingredients:</h5>
+            <p>
+                {% autoescape false %}
+                    {{ recipe.ingredients | replace('| ','|') | replace(' |','|') | replace(' :',':') | replace(': ',':') | replace(':',': ') | replace('|', '<br>') }}
+                    <h5>Steps:</h5>
+                    {{ recipe.steps | replace('| ','|') | replace(' |','|') | replace('|', '<br>') }}
+                {% endautoescape %}
+                {# formating ingredients and steps #}
+            </p>
 
-        <h4>Ingredients:</h4>
-        <p>
-            {% autoescape false %}
-            {{ part.ingredients | replace('| ','|') | replace(' |','|') | replace(' :',':') | replace(': ',':') | replace(':',': ') | replace('|', '<br>') }}
-                <h4>Steps:</h4>
-                {{ part.steps | replace('| ','|') | replace(' |','|') | replace('|', '<br>') }}
-            {% endautoescape %}
-            {# formating ingredients and steps #}
-        </p>
+            <h5>Contains:</h5>
 
-        <h4>Contains:</h4>
+            <p>
+                {% for filter in used_filters %}
+                    {% for l in range(0, (((recipe.tags|length))/2)|int) %}
+                        {% if recipe.tags[l*2:(l*2)+2] == filter['id'] %}
+                            {{ filter['filter'] }}
+                            <br>
 
-        <p>
-            {% for filter in used_filters %}
-                {% for l in range(0, (((part.tags|length))/2)|int) %}
-                    {% if part.tags[l*2:(l*2)+2] == filter['id'] %}
-                        {{ filter['filter'] }}
-                        <br>
-                
-                    {% endif %}
+                        {% endif %}
+                    {% endfor %}
                 {% endfor %}
-            {% endfor %}
-            {# formting filters #}
-        
-            {% if part.extra_notes != "" %}
-            <h4>Extra Notes:</h4>
-            {{ part.extra_notes }}
-            {% endif %}
-            <br>
-            {{ part.tags }}
-            {# displaying recipe #}
-        </p>
-
+                {# formting filters #}
+            
+                {% if recipe.extra_notes != "" %}
+                <h5>Extra Notes:</h5>
+                {{ recipe.extra_notes }}
+                {% endif %}
+                <br>
+                <br>
+                <a href='/manager/deleteFromGroup/{{ group[0].id }}/{{ recipe.id }}'>Delete Recipe From {{group[0].group_name}}</a>
+                <br>
+                {{ recipe.tags }}
+                {# displaying recipe #}
+            </p>
+        {% endif %}
     {% endfor %}
 {% endfor %}
+
+
+    
 {% endblock %}
