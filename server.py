@@ -106,6 +106,7 @@ def login():
         users = Users.query.all()
         for user in users:
             if user.username == loginUsername and user.password == loginPassword:
+                currentUser = user
                 return render_template('userpage.html', theUser=user)
         return render_template('login.html', failure = 1)
 
@@ -150,27 +151,65 @@ def manager():
 
     else:
 
-        myGroups = []
-        recipes = Recipes.query.all()
-        for group in Groups.query.all():
-            thisNewGroup = []
-            tempv = ""
-            thisNewGroup.append(group)
-            for v in range(0, len(group.recipe_ids)):
-                if group.recipe_ids[v:v+1] == "|":
-                    for recipe in recipes:
-                        try:
-                            templ = int(tempv)
-                        except:
-                            continue
-                        if recipe.id == int(templ):
-                            thisNewGroup.append(recipe)
-                            tempv = ""
-                else:
-                    tempv = tempv + str(group.recipe_ids[v:v+1])
-            if len(thisNewGroup) == 0:
-                thisNewGroup.append("None Listed")
-            myGroups.append(thisNewGroup)
+        try:
+            if currentUser.username != '':
+                myGroups = []
+                userGroups = []
+                recipes = Recipes.query.all()
+                for n in range(0, len(currentUser.group_ids)):
+                        if currentUser.group_ids[n:n+1] == "|":
+                            for group in Groups.query.all():
+                                try:
+                                    tempm = int(tempn)
+                                except:
+                                    continue
+                                if group.id == int(tempm):
+                                    userGroups.append(group)
+                                    tempn = ""
+                        else:
+                            tempn = tempn + str(currentUser.group_ids[n:n+1])
+                for group in userGroups:
+                    thisNewGroup = []
+                    tempv = ""
+                    thisNewGroup.append(group)
+                    for v in range(0, len(group.recipe_ids)):
+                        if group.recipe_ids[v:v+1] == "|":
+                            for recipe in recipes:
+                                try:
+                                    templ = int(tempv)
+                                except:
+                                    continue
+                                if recipe.id == int(templ):
+                                    thisNewGroup.append(recipe)
+                                    tempv = ""
+                        else:
+                            tempv = tempv + str(group.recipe_ids[v:v+1])
+                    if len(thisNewGroup) == 0:
+                        thisNewGroup.append("None Listed")
+                    myGroups.append(thisNewGroup)
+
+        except:
+            myGroups = []
+            recipes = Recipes.query.all()
+            for group in Groups.query.all():
+                thisNewGroup = []
+                tempv = ""
+                thisNewGroup.append(group)
+                for v in range(0, len(group.recipe_ids)):
+                    if group.recipe_ids[v:v+1] == "|":
+                        for recipe in recipes:
+                            try:
+                                templ = int(tempv)
+                            except:
+                                continue
+                            if recipe.id == int(templ):
+                                thisNewGroup.append(recipe)
+                                tempv = ""
+                    else:
+                        tempv = tempv + str(group.recipe_ids[v:v+1])
+                if len(thisNewGroup) == 0:
+                    thisNewGroup.append("None Listed")
+                myGroups.append(thisNewGroup)
 
         return render_template('manager.html', the_groups = myGroups, used_filters=filters)
 
