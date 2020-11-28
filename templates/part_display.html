@@ -1,4 +1,5 @@
 <h1>Recipes:</h1>
+<a href='/'>Back To Home</a>
 {% for recipe in recipes %}
 
     <h2>{{ recipe.name }}</h2>
@@ -7,7 +8,7 @@
     <h4>Ingredients:</h4>
     <p>
         {% autoescape false %}
-            {{ recipe.ingredients | replace('| ','|') | replace(' |','|') | replace(' :',':') | replace(': ',':') | replace(':',': ') | replace('|', '<br>') }}
+            {{ recipe.ingredients | replace('*',' ') | replace(':',': ') | replace('|', '<br>') }}
             <h4>Steps:</h4>
             {{ recipe.steps | replace('| ','|') | replace(' |','|') | replace('|', '<br>') }}
         {% endautoescape %}

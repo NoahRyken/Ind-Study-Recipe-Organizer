@@ -174,7 +174,7 @@ def newuser():
         newUser = Users(username=newUsername, password=newPassword)
         db.session.add(newUser)
         db.session.commit()
-        currentUser = user.id
+        currentUser = newUser.id
         return render_template('userpage.html', theUser=newUser, new=1)
 
     else:
@@ -209,10 +209,10 @@ def userGroupDelete(id):
     userGroups = user.group_ids
 
     if userGroups.index("|" + str(id)) != 0:
-        userGroups = userGroups[0:userGroups.index("|" + str(id))] + userGroups[userGroups.index("|" + str(id)) + len(str(id)) + 1]
+        userGroups = userGroups[0:userGroups.index("|" + str(id))] + userGroups[userGroups.index("|" + str(id)) + len(str(id)) + 1:len(userGroups)]
     
     else:
-        userGroups = userGroups[len(str(id)) + 1]
+        userGroups = userGroups[len(str(id)) + 1:len(userGroups)]
 
     user.group_ids = userGroups
     db.session.commit()
@@ -417,36 +417,8 @@ def search():
 @server.route('/recipe', methods=['GET', 'POST'])
 def recipe():
 
-    if request.method == 'POST':
-        #if new recipe input
-
-        recipe_name = request.form['name']
-        recipe_chef = request.form['chef']
-        recipe_ingredients = request.form['ingredients']
-        recipe_steps = request.form['steps']
-        recipe_extra_notes = request.form['notes']
-        recipe_tags = ""
-        #assigning new recipe ject to form inputs
-
-        for my_filter in filters:
-            try:
-                if request.form[my_filter['filter']] == "":
-                    recipe_tags += my_filter['id']
-            except:
-                continue
-        #assigning tags to recipe
-        
-        new_recipes = Recipes(name=recipe_name, chef=recipe_chef, ingredients=recipe_ingredients, steps=recipe_steps, extra_notes=recipe_extra_notes, tags=recipe_tags)
-        db.session.add(new_recipes)
-        db.session.commit()
-        return redirect('/recipe')
-        #adding recipe to database
-        
-    else:
-        all_recipes = Recipes.query.all()
-        inputGroups = Groups.query.all()
-        return render_template("recipe.html", recipes=all_recipes, used_filters=filters, the_groups=inputGroups)
-        #displaying website
+    return render_template("recipe.html", recipes=Recipes.query.all(), used_filters=filters, the_groups=Groups.query.all())
+    #displaying website
 
 
 
@@ -460,16 +432,41 @@ def delete(id):
 
 
 
+@server.route('/addIngredients', methods=['GET', 'POST'])
+def addIngredients():
+
+    if request.method == 'POST':
+
+        tempg = -1
+
+        for recipe in Recipes.query.all():
+            if recipe.id > tempg:
+                tempg = recipe.id
+        
+        ingredientAmount = request.form['ingredient_amount'].lower()
+        ingredientMeasure = request.form['ingredient_measure'].lower()
+        ingredientName = request.form['ingredient_name'].lower()
+
+        recipe = Recipes.query.get_or_404(tempg)
+        recipe.ingredients = recipe.ingredients + ingredientAmount + "*" + ingredientMeasure + ":" + ingredientName + "|"
+        db.session.commit()
+        return redirect('/addIngredients')
+
+    else:
+        return render_template('addingredient.html')
+
+
+
+
+
 @server.route('/add', methods=['GET', 'POST'])
 def add():
 
     if request.method == 'POST':
         #if new recipe input
 
-        ingredient_num = 1
         recipe_name = request.form['name']
         recipe_chef = request.form['chef']
-        recipe_ingredients = request.form['ingredients']
         recipe_steps = request.form['steps']
         recipe_extra_notes = request.form['notes']
         recipe_tags = ""
@@ -483,10 +480,10 @@ def add():
                 continue
         #assigning tags to recipe
         
-        new_recipes = Recipes(name=recipe_name, chef=recipe_chef, ingredients=recipe_ingredients, steps=recipe_steps, extra_notes=recipe_extra_notes, tags=recipe_tags)
+        new_recipes = Recipes(name=recipe_name, chef=recipe_chef, ingredients="|", steps=recipe_steps, extra_notes=recipe_extra_notes, tags=recipe_tags)
         db.session.add(new_recipes)
         db.session.commit()
-        return render_template("add.html", used_filters=filters, ing_num=ingredient_num)
+        return redirect("/addIngredients")
         #adding recipe to database
         
     else:

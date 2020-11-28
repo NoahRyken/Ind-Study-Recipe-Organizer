@@ -7,9 +7,9 @@
 {% block body %}
 <h1>{{currentUser.username}}'s Groups Manager</h1>
 <a href='/'>To Home</a>
-{% for group in usedGroups %}
+{% for group in theGroups %}
 <br>
-    <a href='/userGroupManager/{{group[0].id}}'>Add {{group[0].group_name}}</a>
+    <a href='/userGroupManager/{{group.id}}'>Add {{group.group_name}}</a>
 {% endfor %}
 
 <h2>Used Groups {{currentUser.group_ids}}</h2>
