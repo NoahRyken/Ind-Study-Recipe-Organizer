@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>{{currentUser.username}}'s Groups Manager</title>
+{% endblock %}
+
+{% block body %}
+<h1>{{currentUser.username}}'s Groups Manager</h1>
+<a href='/'>To Home</a>
+{% for group in usedGroups %}
+<br>
+    <a href='/userGroupManager/{{group[0].id}}'>Add {{group[0].group_name}}</a>
+{% endfor %}
+
+<h2>Used Groups {{currentUser.group_ids}}</h2>
+{% for groups in usedGroups %}
+    {% for group in groups %}
+        {% if group.recipe_ids != "|" or group.recipe_ids != "" %}
+            <h3>{{group.group_name}}</h3>
+            <h5>{{group.recipe_ids}}</h5>
+            <a href='/userGroupDelete/{{group.id}}'>Delete {{group.group_name}}</a>
+        {% endif %}
+        <h4>{{ group.name }}</h4>
+        <br>
+    {% endfor %}
+{% endfor %}
+
+{% endblock %}

@@ -12,10 +12,19 @@
             <input type='submit' vale='Submit'>
 {# links to other locations #}
 
+{% if user == "Guest" %}
+<h1>Hello {{ user }}</h1>
+{% else %}
+<h1>Hello {{user.username}}</h1>
+<h2>{{user.group_ids}}</h2>
+{% endif %}
+
 {% for group in the_groups %}
     <h2>{{ group[0].group_name }}</h2>
     <p>{{ group[0].recipe_ids }}</p>
-    <a href='/manager/deleteGroup/{{ group[0].id }}'>Delete {{group[0].group_name}}</a>
+    {% if user != 'Guest'%}
+        <a href='/manager/deleteGroup/{{ group[0].id }}'>Delete {{group[0].group_name}}</a>
+    {% endif %}
     {% for recipe in group %}
         {% if recipe.name|length != 0 %}
 
@@ -52,7 +61,9 @@
                 {% endif %}
                 <br>
                 <br>
-                <a href='/manager/deleteFromGroup/{{ group[0].id }}/{{ recipe.id }}'>Delete Recipe From {{group[0].group_name}}</a>
+                {% if user != 'Guest'%}
+                    <a href='/manager/deleteFromGroup/{{ group[0].id }}/{{ recipe.id }}'>Delete Recipe From {{group[0].group_name}}</a>
+                {% endif %}
                 <br>
                 {{ recipe.tags }}
                 {# displaying recipe #}

@@ -8,6 +8,7 @@ db = SQLAlchemy(server)
 #Creating server
 
 ingredient_num = 1
+currentUser = -1
 
 filters = [
     {
@@ -91,8 +92,44 @@ class Groups(db.Model):
 
 @server.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', user=currentUser)
 #Routing to Home Page
+
+
+
+@server.route('/reset')
+def reset():
+
+    recipes = Recipes.query.all()
+    groups = Groups.query.all()
+    users = Users.query.all()
+
+    for recipe in recipes:
+        db.session.delete(recipe)
+    for group in groups:
+        db.session.delete(group)
+    for user in users:
+        db.session.delete(user)
+
+    db.session.commit()
+
+    return redirect('/')
+
+
+
+@server.route('/logout', methods=['GET', 'POST'])
+def logout():
+    return render_template('logout.html')
+
+
+
+@server.route('/logout/confirm', methods=['GET', 'POST'])
+def logoutConfirmed():
+
+    global currentUser
+    currentUser = -1
+
+    return redirect('/')
 
 
 
@@ -100,14 +137,17 @@ def index():
 def login():
 
     if request.method == 'POST':
-
+        
+        global currentUser
         loginUsername = request.form['username']
         loginPassword = request.form['password']
         users = Users.query.all()
+
         for user in users:
             if user.username == loginUsername and user.password == loginPassword:
-                currentUser = user
-                return render_template('userpage.html', theUser=user)
+                currentUser = user.id
+                return redirect('/userGroupManager')
+
         return render_template('login.html', failure = 1)
 
     else:
@@ -119,7 +159,8 @@ def login():
 def newuser():
     
     if request.method == 'POST':
-
+        
+        global currentUser
         newUsername = request.form['username']
         newPassword = request.form['password']
         users = Users.query.all()
@@ -127,14 +168,87 @@ def newuser():
         for user in users:
             if user.username == newUsername and user.password == newPassword:
                 return render_template('userpage.html', theUser=user, weirdness=1)
+            elif user.username == newUsername:
+                return render_template('newuser.html', inUse=1)
 
         newUser = Users(username=newUsername, password=newPassword)
         db.session.add(newUser)
         db.session.commit()
+        currentUser = user.id
         return render_template('userpage.html', theUser=newUser, new=1)
 
     else:
         return render_template('newuser.html')
+
+
+
+@server.route('/userGroupManager/<int:id>')
+def addGroupUser(id):
+
+    user = Users.query.get_or_404(currentUser)
+    group = Groups.query.get_or_404(id)
+
+    groupIds = user.group_ids
+
+    if groupIds == "":
+        groupIds = "|" + str(group.id) + "|"
+    else:
+        groupIds = groupIds + str(group.id) + "|"
+
+    user.group_ids = groupIds
+    db.session.commit()
+    
+    return redirect('/userGroupManager')
+
+
+
+@server.route('/userGroupDelete/<int:id>')
+def userGroupDelete(id):
+
+    user = Users.query.get_or_404(currentUser)
+    userGroups = user.group_ids
+
+    if userGroups.index("|" + str(id)) != 0:
+        userGroups = userGroups[0:userGroups.index("|" + str(id))] + userGroups[userGroups.index("|" + str(id)) + len(str(id)) + 1]
+    
+    else:
+        userGroups = userGroups[len(str(id)) + 1]
+
+    user.group_ids = userGroups
+    db.session.commit()
+    return redirect('/userGroupManager')
+
+
+
+@server.route('/userGroupManager')
+def userGroupManager():
+
+    user = Users.query.get_or_404(currentUser)
+    groups = Groups.query.all()
+    recipes = Recipes.query.all()
+    usedGroupList = []
+    usedRecipes = []
+
+    for group in groups:
+        try:
+            if user.group_ids.index("|" + str(group.id) + "|") != -1:
+                usedGroupList.append(group)
+        except:
+            continue
+
+    for group in usedGroupList:
+        groupsRecipes = []
+        groupsRecipes.append(group)
+        for recipe in recipes:
+            try:
+                if group.recipe_ids.index("|" + str(recipe.id) + "|" != -1):
+                    groupsRecipes.append(recipe)
+            except:
+                continue
+        usedRecipes.append(groupsRecipes)
+            
+    print(usedRecipes)
+    return render_template('usergroupmanager.html', usedGroups=usedRecipes, currentUser=user, theGroups=groups)
 
 
 
@@ -151,44 +265,45 @@ def manager():
 
     else:
 
-        try:
-            if currentUser.username != '':
-                myGroups = []
-                userGroups = []
-                recipes = Recipes.query.all()
-                for n in range(0, len(currentUser.group_ids)):
-                        if currentUser.group_ids[n:n+1] == "|":
-                            for group in Groups.query.all():
-                                try:
-                                    tempm = int(tempn)
-                                except:
-                                    continue
-                                if group.id == int(tempm):
-                                    userGroups.append(group)
-                                    tempn = ""
-                        else:
-                            tempn = tempn + str(currentUser.group_ids[n:n+1])
-                for group in userGroups:
-                    thisNewGroup = []
-                    tempv = ""
-                    thisNewGroup.append(group)
-                    for v in range(0, len(group.recipe_ids)):
-                        if group.recipe_ids[v:v+1] == "|":
-                            for recipe in recipes:
-                                try:
-                                    templ = int(tempv)
-                                except:
-                                    continue
-                                if recipe.id == int(templ):
-                                    thisNewGroup.append(recipe)
-                                    tempv = ""
-                        else:
-                            tempv = tempv + str(group.recipe_ids[v:v+1])
-                    if len(thisNewGroup) == 0:
-                        thisNewGroup.append("None Listed")
-                    myGroups.append(thisNewGroup)
-
-        except:
+        if currentUser != -1:
+            theUser = Users.query.get_or_404(currentUser)
+            myGroups = []
+            tempn = ""
+            userGroups = []
+            recipes = Recipes.query.all()
+            for n in range(0, len(theUser.group_ids)):
+                    if theUser.group_ids[n:n+1] == "|":
+                        for group in Groups.query.all():
+                            try:
+                                tempm = int(tempn)
+                            except:
+                                continue
+                            if group.id == int(tempm):
+                                userGroups.append(group)
+                                tempn = ""
+                    else:
+                        tempn = tempn + str(theUser.group_ids[n:n+1])
+            for group in userGroups:
+                thisNewGroup = []
+                tempv = ""
+                thisNewGroup.append(group)
+                for v in range(0, len(group.recipe_ids)):
+                    if group.recipe_ids[v:v+1] == "|":
+                        for recipe in recipes:
+                            try:
+                                templ = int(tempv)
+                            except:
+                                continue
+                            if recipe.id == int(templ):
+                                thisNewGroup.append(recipe)
+                                tempv = ""
+                    else:
+                        tempv = tempv + str(group.recipe_ids[v:v+1])
+                if len(thisNewGroup) == 0:
+                    thisNewGroup.append("None Listed")
+                myGroups.append(thisNewGroup)
+        else:
+            theUser = "Guest"
             myGroups = []
             recipes = Recipes.query.all()
             for group in Groups.query.all():
@@ -211,7 +326,7 @@ def manager():
                     thisNewGroup.append("None Listed")
                 myGroups.append(thisNewGroup)
 
-        return render_template('manager.html', the_groups = myGroups, used_filters=filters)
+        return render_template('manager.html', user=theUser, the_groups = myGroups, used_filters=filters)
 
 
 
@@ -238,9 +353,9 @@ def deleteGroup(id):
 def deleteFromGroup(gid, id):
     group = Groups.query.get_or_404(gid)
     if group.recipe_ids.index("|" + str(id)) != 0:
-        group.recipe_ids = group.recipe_ids[0:group.recipe_ids.index("|" + str(id) + "|")] + group.recipe_ids[group.recipe_ids.index("|" + str(id) + "|") + len(str(id)) + 1:len(group.recipe_ids)]
+        group.recipe_ids = group.recipe_ids[0:group.recipe_ids.index("|" + str(id) + "|")] + group.recipe_ids[group.recipe_ids.index("|" + str(id) + "|") + len(str(id)) + 1]
     else:
-        group.recipe_ids = group.recipe_ids[len(str(id)) + 1:len(group.recipe_ids)]
+        group.recipe_ids = group.recipe_ids[len(str(id)) + 1]
     db.session.commit()
 
     return redirect('/manager')
@@ -371,7 +486,7 @@ def add():
         new_recipes = Recipes(name=recipe_name, chef=recipe_chef, ingredients=recipe_ingredients, steps=recipe_steps, extra_notes=recipe_extra_notes, tags=recipe_tags)
         db.session.add(new_recipes)
         db.session.commit()
-        return redirect('/add')
+        return render_template("add.html", used_filters=filters, ing_num=ingredient_num)
         #adding recipe to database
         
     else:

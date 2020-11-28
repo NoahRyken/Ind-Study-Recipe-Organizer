@@ -10,8 +10,12 @@
 <a href='/recipe'>To Orginizer</a>
 <a href='/search'>To Search</a>
 <a href='/add'>To Add Recipes</a>
-<a href='/my_favorite'>To Favorites</a>
 <a href='/manager'>To Manager</a>
-<a href='/login'>To Login</a>
+{% if user != -1 %}
+    <a href='/logout'>To Logout</a>
+    <a href='/userGroupManager'>To User Group Manager</a>
+{% else %}
+    <a href='/login'>To Login</a>
+{% endif %}
 {# links to other locations #}
 {% endblock %}
