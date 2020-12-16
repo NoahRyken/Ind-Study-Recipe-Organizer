@@ -5,17 +5,18 @@
 {% endblock %}
 
 {% block body %}
+<h1>Create New Account</h1>
+<a href='/'>To Home</a>
 <form action='/newuser' method='POST' id='login'>
     Create Username: <input type='text' name='username' id='username' form_id='login'>
     <br>
     Create Password: <input type='text' name='password' id='password' form_id='login'>
+    <br>
             <input type='submit' value='Create Account' form_id='login'>
 
 {% if inUse == 1 %}
 <p>This username was already in use please try anouther one</p>
 {% endif %}
-
-<a href='/'>To Home</a>
 
 {# links to other locations #}
 {% endblock %}

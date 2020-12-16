@@ -146,7 +146,7 @@ def login():
         for user in users:
             if user.username == loginUsername and user.password == loginPassword:
                 currentUser = user.id
-                return redirect('/userGroupManager')
+                return redirect('/manager')
 
         return render_template('login.html', failure = 1)
 
@@ -271,19 +271,44 @@ def manager():
             tempn = ""
             userGroups = []
             recipes = Recipes.query.all()
-            for n in range(0, len(theUser.group_ids)):
-                    if theUser.group_ids[n:n+1] == "|":
-                        for group in Groups.query.all():
-                            try:
-                                tempm = int(tempn)
-                            except:
-                                continue
-                            if group.id == int(tempm):
-                                userGroups.append(group)
-                                tempn = ""
-                    else:
-                        tempn = tempn + str(theUser.group_ids[n:n+1])
+            for n in range(1, len(theUser.group_ids)):
+                if theUser.group_ids[n:n+1] != "|":
+                    tempn = tempn + str(theUser.group_ids[n:n+1])
+                else:
+                    id = int(tempn)
+                    tempn = ""
+                    for group in Groups.query.all():
+                        if id == group.id:
+                            userGroups.append(group)
+                            continue
+            #        if theUser.group_ids[n:n+1] == "|":
+            #            for group in Groups.query.all():
+            #                try:
+            #                    tempm = int(tempn)
+            #                except:
+            #                    continue
+            #                if group.id == int(tempm):
+            #                    userGroups.append(group)
+            #                    tempn = ""
+            #        else:
+            #            tempn = tempn + str(theUser.group_ids[n:n+1])
+            print(userGroups)
+            AllGroupIngredientsList = []
+            AllGroupIngredientsAmount = []
+            AllGroupIngredientsMessure = []
+            groupNames = []
+
             for group in userGroups:
+
+                GroupIngredientsList = []
+                GroupIngredientsAmount = []
+                GroupIngredientsMessure = []
+                ingredientsAmount = []
+                ingredientsMessure = []
+                ingredientsList = []
+
+                groupNames.append(group.group_name)
+
                 thisNewGroup = []
                 tempv = ""
                 thisNewGroup.append(group)
@@ -297,36 +322,145 @@ def manager():
                             if recipe.id == int(templ):
                                 thisNewGroup.append(recipe)
                                 tempv = ""
-                    else:
-                        tempv = tempv + str(group.recipe_ids[v:v+1])
-                if len(thisNewGroup) == 0:
-                    thisNewGroup.append("None Listed")
-                myGroups.append(thisNewGroup)
-        else:
-            theUser = "Guest"
-            myGroups = []
-            recipes = Recipes.query.all()
-            for group in Groups.query.all():
-                thisNewGroup = []
-                tempv = ""
-                thisNewGroup.append(group)
-                for v in range(0, len(group.recipe_ids)):
-                    if group.recipe_ids[v:v+1] == "|":
-                        for recipe in recipes:
-                            try:
-                                templ = int(tempv)
-                            except:
-                                continue
-                            if recipe.id == int(templ):
-                                thisNewGroup.append(recipe)
-                                tempv = ""
+
+                                ingredientsRecipe = recipe.ingredients
+                                temph = ""
+                                for z in range(0, len(ingredientsRecipe)):
+                                    tempChar = ingredientsRecipe[z:z+1]
+                                    if z == 0:
+                                        continue
+                                    elif tempChar == "|":
+                                        ingredientsList.append(temph)
+                                        temph = ""
+                                    elif tempChar == "*":
+                                        ingredientsAmount.append(int(temph))
+                                        temph = ""
+                                    elif tempChar == ":":
+                                        ingredientsMessure.append(temph)
+                                        temph = ""
+                                    else:
+                                        temph = temph + tempChar
                     else:
                         tempv = tempv + str(group.recipe_ids[v:v+1])
                 if len(thisNewGroup) == 0:
                     thisNewGroup.append("None Listed")
                 myGroups.append(thisNewGroup)
 
-        return render_template('manager.html', user=theUser, the_groups = myGroups, used_filters=filters)
+                for a in range(0, len(ingredientsList)):
+                    k = 0
+                    for b in range(0, len(GroupIngredientsList)):
+                        if ingredientsList[a] == GroupIngredientsList[b] and ingredientsMessure[a] == GroupIngredientsMessure[b]:
+                            GroupIngredientsAmount[b] = GroupIngredientsAmount[b] + ingredientsAmount[a]
+                            k = 1
+                    if k != 1:
+                        GroupIngredientsAmount.append(ingredientsAmount[a])
+                        GroupIngredientsMessure.append(ingredientsMessure[a])
+                        GroupIngredientsList.append(ingredientsList[a])
+                        
+
+
+                            
+                AllGroupIngredientsAmount.append(GroupIngredientsAmount)
+                AllGroupIngredientsMessure.append(GroupIngredientsMessure)
+                AllGroupIngredientsList.append(GroupIngredientsList)
+                
+
+        else:
+            theUser = "Guest"
+            myGroups = []
+            recipes = Recipes.query.all()
+
+            AllGroupIngredientsList = []
+            AllGroupIngredientsAmount = []
+            AllGroupIngredientsMessure = []
+            groupNames = []
+
+            for group in Groups.query.all():
+
+                GroupIngredientsList = []
+                GroupIngredientsAmount = []
+                GroupIngredientsMessure = []
+                ingredientsAmount = []
+                ingredientsMessure = []
+                ingredientsList = []
+
+                groupNames.append(group.group_name)
+
+                thisNewGroup = []
+                tempv = ""
+                thisNewGroup.append(group)
+                for v in range(0, len(group.recipe_ids)):
+                    if group.recipe_ids[v:v+1] == "|":
+                        for recipe in recipes:
+                            try:
+                                templ = int(tempv)
+                            except:
+                                continue
+                            if recipe.id == int(templ):
+                                thisNewGroup.append(recipe)
+                                tempv = ""
+
+                                ingredientsRecipe = recipe.ingredients
+                                temph = ""
+                                for z in range(0, len(ingredientsRecipe)):
+                                    tempChar = ingredientsRecipe[z:z+1]
+                                    if z == 0:
+                                        continue
+                                    elif tempChar == "|":
+                                        ingredientsList.append(temph)
+                                        temph = ""
+                                    elif tempChar == "*":
+                                        ingredientsAmount.append(int(temph))
+                                        temph = ""
+                                    elif tempChar == ":":
+                                        ingredientsMessure.append(temph)
+                                        temph = ""
+                                    else:
+                                        temph = temph + tempChar
+                    else:
+                        tempv = tempv + str(group.recipe_ids[v:v+1])
+                if len(thisNewGroup) == 0:
+                    thisNewGroup.append("None Listed")
+                myGroups.append(thisNewGroup)
+
+                for a in range(0, len(ingredientsList)):
+                    k = 0
+                    for b in range(0, len(GroupIngredientsList)):
+                        if ingredientsList[a] == GroupIngredientsList[b] and ingredientsMessure[a] == GroupIngredientsMessure[b]:
+                            GroupIngredientsAmount[b] = GroupIngredientsAmount[b] + ingredientsAmount[a]
+                            k = 1
+                    if k != 1:
+                        GroupIngredientsAmount.append(ingredientsAmount[a])
+                        GroupIngredientsMessure.append(ingredientsMessure[a])
+                        GroupIngredientsList.append(ingredientsList[a])
+                        
+
+
+                            
+                AllGroupIngredientsAmount.append(GroupIngredientsAmount)
+                AllGroupIngredientsMessure.append(GroupIngredientsMessure)
+                AllGroupIngredientsList.append(GroupIngredientsList)
+
+        finalList = []
+        templist = []
+        bigTempList = []
+        for l in range(0, len(AllGroupIngredientsAmount)):
+            bigTempList.append(groupNames[l])
+            for z in range(0, len(AllGroupIngredientsAmount[l])):
+                templist.append(AllGroupIngredientsAmount[l][z])
+                templist.append(AllGroupIngredientsMessure[l][z])
+                templist.append(AllGroupIngredientsList[l][z])
+                bigTempList.append(templist)
+                templist = []
+            finalList.append(bigTempList)
+            bigTempList = []
+
+        print(finalList)
+
+        
+
+        print("!" + str(AllGroupIngredientsAmount) + "@" + str(AllGroupIngredientsMessure) + "%" + str(AllGroupIngredientsList))
+        return render_template('manager.html', LF=finalList, user=theUser, the_groups = myGroups, used_filters=filters)
 
 
 

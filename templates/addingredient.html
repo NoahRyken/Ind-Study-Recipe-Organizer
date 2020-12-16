@@ -7,11 +7,11 @@
 {% block body %}
 
 <h1>Add Recipes:</h1>
+<a href='/'>To Home</a>
 <form action='/addIngredients' method='POST'>
     Add Amount: <input type='text' name='ingredient_amount' id='ingredient_amount'>
     Add Measure: <input type='text' name='ingredient_measure' id='ingredient_measure'>
     Add Ingredient: <input type='text' name='ingredient_name' id='ingredient_name'>
     <input type="submit" value="Submit">
-<a href='/'>Back To Home</a>
 
 {% endblock %}

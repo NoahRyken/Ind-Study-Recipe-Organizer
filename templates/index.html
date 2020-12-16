@@ -6,15 +6,17 @@
 
 {% block body %}
 <h1>Welcome</h1>
-
+<h2>Public Links</h2>
 <a href='/recipe'>To Orginizer</a>
 <a href='/search'>To Search</a>
 <a href='/add'>To Add Recipes</a>
 <a href='/manager'>To Manager</a>
 {% if user != -1 %}
+    <h2>User Links</h2>
     <a href='/logout'>To Logout</a>
     <a href='/userGroupManager'>To User Group Manager</a>
 {% else %}
+    <h2>Guest Links</h2>
     <a href='/login'>To Login</a>
 {% endif %}
 {# links to other locations #}

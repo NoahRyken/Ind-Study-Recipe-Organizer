@@ -19,12 +19,23 @@
 <h2>{{user.group_ids}}</h2>
 {% endif %}
 
+<h2>Total Ingredients For Lists</h2>
+{% for group in LF %}
+    <h3>{{group[0]}}</h3>
+    {% for ingr in group %}
+        {% if ingr|length == 3 %}
+            <p>{{ingr[0]}} {{ingr[1]}}: {{ingr[2]}}</p>
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+
 {% for group in the_groups %}
     <h2>{{ group[0].group_name }}</h2>
     <p>{{ group[0].recipe_ids }}</p>
     {% if user != 'Guest'%}
         <a href='/manager/deleteGroup/{{ group[0].id }}'>Delete {{group[0].group_name}}</a>
     {% endif %}
+    
     {% for recipe in group %}
         {% if recipe.name|length != 0 %}
 
@@ -34,7 +45,7 @@
             <h5>Ingredients:</h5>
             <p>
                 {% autoescape false %}
-                    {{ recipe.ingredients | replace('| ','|') | replace(' |','|') | replace(' :',':') | replace(': ',':') | replace(':',': ') | replace('|', '<br>') }}
+                    {{ recipe.ingredients | replace('| ','|') | replace(' |','|') | replace(' :',':') | replace(': ',':') | replace(':',': ') | replace('|', '<br>') | replace('*',' ')}}
                     <h5>Steps:</h5>
                     {{ recipe.steps | replace('| ','|') | replace(' |','|') | replace('|', '<br>') }}
                 {% endautoescape %}

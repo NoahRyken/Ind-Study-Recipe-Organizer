@@ -6,6 +6,7 @@
 
 {% block body %}
 <h1>Hello {{theUser.username}}</h1>
+<a href='/'>To Home</a>
 {% if weirdness == 1 %}
     <p>Your credentials are already in use so we logged you in</p>
 {% endif %}
@@ -13,7 +14,7 @@
     <p>Your credentials have been input and we have logged you in</p>
 {% endif %}
 <p>{{test}}</p>
-<a href='/'>To Home</a>
+\\
 
 {# links to other locations #}
 {% endblock %}
