@@ -247,7 +247,6 @@ def userGroupManager():
                 continue
         usedRecipes.append(groupsRecipes)
             
-    print(usedRecipes)
     return render_template('usergroupmanager.html', usedGroups=usedRecipes, currentUser=user, theGroups=groups)
 
 
@@ -281,18 +280,7 @@ def manager():
                         if id == group.id:
                             userGroups.append(group)
                             continue
-            #        if theUser.group_ids[n:n+1] == "|":
-            #            for group in Groups.query.all():
-            #                try:
-            #                    tempm = int(tempn)
-            #                except:
-            #                    continue
-            #                if group.id == int(tempm):
-            #                    userGroups.append(group)
-            #                    tempn = ""
-            #        else:
-            #            tempn = tempn + str(theUser.group_ids[n:n+1])
-            print(userGroups)
+
             AllGroupIngredientsList = []
             AllGroupIngredientsAmount = []
             AllGroupIngredientsMessure = []
@@ -317,6 +305,13 @@ def manager():
                         for recipe in recipes:
                             try:
                                 templ = int(tempv)
+                                i = 0
+                                for recipe in recipes:
+                                    if recipe.id == templ:
+                                        i = 1
+                                        break
+                                if i == 0:
+                                    tempv = ""
                             except:
                                 continue
                             if recipe.id == int(templ):
@@ -394,6 +389,13 @@ def manager():
                         for recipe in recipes:
                             try:
                                 templ = int(tempv)
+                                i = 0
+                                for recipe in recipes:
+                                    if recipe.id == templ:
+                                        i = 1
+                                        break
+                                if i == 0:
+                                    tempv = ""
                             except:
                                 continue
                             if recipe.id == int(templ):
@@ -455,11 +457,7 @@ def manager():
             finalList.append(bigTempList)
             bigTempList = []
 
-        print(finalList)
-
-        
-
-        print("!" + str(AllGroupIngredientsAmount) + "@" + str(AllGroupIngredientsMessure) + "%" + str(AllGroupIngredientsList))
+        print(str(finalList) + "$" + str(myGroups))
         return render_template('manager.html', LF=finalList, user=theUser, the_groups = myGroups, used_filters=filters)
 
 
