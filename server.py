@@ -328,7 +328,7 @@ def manager():
                                         ingredientsList.append(temph)
                                         temph = ""
                                     elif tempChar == "*":
-                                        ingredientsAmount.append(int(temph))
+                                        ingredientsAmount.append(float(temph))
                                         temph = ""
                                     elif tempChar == ":":
                                         ingredientsMessure.append(temph)
@@ -412,7 +412,7 @@ def manager():
                                         ingredientsList.append(temph)
                                         temph = ""
                                     elif tempChar == "*":
-                                        ingredientsAmount.append(int(temph))
+                                        ingredientsAmount.append(float(temph))
                                         temph = ""
                                     elif tempChar == ":":
                                         ingredientsMessure.append(temph)
@@ -457,7 +457,6 @@ def manager():
             finalList.append(bigTempList)
             bigTempList = []
 
-        print(str(finalList) + "$" + str(myGroups))
         return render_template('manager.html', LF=finalList, user=theUser, the_groups = myGroups, used_filters=filters)
 
 

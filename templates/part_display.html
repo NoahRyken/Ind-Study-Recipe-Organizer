@@ -14,20 +14,21 @@
         {% endautoescape %}
         {# formating ingredients and steps #}
     </p>
+    {% if recipe.tags != "" %}
+        <h4>Contains:</h4>
 
-    <h4>Contains:</h4>
-    
-    <p>
-        {% for filter in used_filters %}
-            {% for l in range(0, (((recipe.tags|length))/2)|int) %}
-                {% if recipe.tags[l*2:(l*2)+2] == filter['id'] %}
-                    {{ filter['filter'] }}
-                    <br>
-            
-                {% endif %}
+        <p>
+            {% for filter in used_filters %}
+                {% for l in range(0, (((recipe.tags|length))/2)|int) %}
+                    {% if recipe.tags[l*2:(l*2)+2] == filter['id'] %}
+                        {{ filter['filter'] }}
+                        <br>
+
+                    {% endif %}
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
-        {# formting filters #}
+            {# formting filters #}
+        {% endif %}
     
         {% if recipe.extra_notes != "" %}
         <h4>Extra Notes:</h4>
@@ -41,7 +42,6 @@
                 <a href="/manager/addToGroup/{{group.id}}/{{recipe.id}}">Add Recipe To {{ group.group_name }} Manager</a>
             {% endfor %}
         <br>
-        {{ recipe.tags }}
         {# displaying recipe #}
     </p>
 {% endfor %}

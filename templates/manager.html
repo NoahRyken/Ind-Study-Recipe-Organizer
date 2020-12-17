@@ -16,7 +16,6 @@
 <h1>Hello {{ user }}</h1>
 {% else %}
 <h1>Hello {{user.username}}</h1>
-<h2>{{user.group_ids}}</h2>
 {% endif %}
 
 <h2>Total Ingredients For Lists</h2>
@@ -31,7 +30,6 @@
 
 {% for group in the_groups %}
     <h2>{{ group[0].group_name }}</h2>
-    <p>{{ group[0].recipe_ids }}</p>
     {% if user != 'Guest'%}
         <a href='/manager/deleteGroup/{{ group[0].id }}'>Delete {{group[0].group_name}}</a>
     {% endif %}
@@ -51,20 +49,21 @@
                 {% endautoescape %}
                 {# formating ingredients and steps #}
             </p>
+            {% if recipe.tags != "" %}
+                <h5>Contains:</h5>
 
-            <h5>Contains:</h5>
+                <p>
+                    {% for filter in used_filters %}
+                        {% for l in range(0, (((recipe.tags|length))/2)|int) %}
+                            {% if recipe.tags[l*2:(l*2)+2] == filter['id'] %}
+                                {{ filter['filter'] }}
+                                <br>
 
-            <p>
-                {% for filter in used_filters %}
-                    {% for l in range(0, (((recipe.tags|length))/2)|int) %}
-                        {% if recipe.tags[l*2:(l*2)+2] == filter['id'] %}
-                            {{ filter['filter'] }}
-                            <br>
-
-                        {% endif %}
+                            {% endif %}
+                        {% endfor %}
                     {% endfor %}
-                {% endfor %}
-                {# formting filters #}
+                    {# formting filters #}
+                {% endif %}
             
                 {% if recipe.extra_notes != "" %}
                 <h5>Extra Notes:</h5>
@@ -76,7 +75,6 @@
                     <a href='/manager/deleteFromGroup/{{ group[0].id }}/{{ recipe.id }}'>Delete Recipe From {{group[0].group_name}}</a>
                 {% endif %}
                 <br>
-                {{ recipe.tags }}
                 {# displaying recipe #}
             </p>
         {% endif %}
